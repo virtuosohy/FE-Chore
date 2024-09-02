@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<style>
+    div{
+        width: 200px;
+        height: 280px;
+        background-color: #eee;
+        padding: 20px;
+        margin: 0 auto;
+    }
+
+    button{
+        margin: 30px 25px;
+    }
+
+</style>
+</head>
+<body>
+<div>
+    <p>商品</p>
+    <p>a</p>
+    <p>b</p>
+    <p>c</p>
+    <p>d</p>
+    <p>
+
+        <button>取消</button>
+        <button>支付</button>
+
+    </p>
+</div>
+<script>
+    //点击支付，出现确认框
+    document.getElementsByTagName('button')[1].onclick = function (){
+        let  res = window.confirm('确定要支付吗');
+        if(res){
+            location.href ='./succ.html'
+        }
+    }
+
+</script>
+</body>
+</html>
