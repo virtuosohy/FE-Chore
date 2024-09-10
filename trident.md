@@ -1,6 +1,3 @@
-# FE-Chore
-## just some ezsy tips
-
 # 壹：HTML 基础
 
 ## 01-标签语法
@@ -1786,6 +1783,517 @@ HTML 元素的默认值，即没有定位，遵循正常的文档流对象。
 ```
 
 ![image-20231010141815053](https://s2.loli.net/2023/10/25/w8qJPSGHjeZiQIB.png)
+
+
+
+
+
+
+
+------
+
+
+
+# 柒-(未完)
+
+
+
+## 01-平面转换
+
+### 简介
+
+作用：为元素添加动态效果，一般与过渡配合使用
+
+概念：改变盒子在平面内的形态（位移、旋转、缩放、倾斜）
+
+
+
+平面转换也叫 2D 转换，属性是 **transform**
+
+
+
+
+
+### 平移
+
+```css
+transform: translate(X轴移动距离, Y轴移动距离);
+```
+
+- 取值
+  - 像素单位数值
+  - 百分比（参照**盒子自身尺寸**计算结果）
+  - **正负**均可
+
+
+- 技巧
+  - translate() **只写一个值**，表示沿着 **X** 轴移动
+  - 单独设置 X 或 Y 轴移动距离：translateX() 或 translateY()
+
+### 定位居中
+
+- 方法一：margin
+
+  ```css
+  .a{
+      position:absolute;
+      left:50%;
+      right:50%;
+      
+      /* margin */
+      margin-top：-100px；
+      
+      width：200px；
+      height：100px；
+      
+  }
+  ```
+
+  ​
+
+
+- 方法二：平移 → 百分比参照盒子自身尺寸计算结果 
+
+```css
+.a{
+    position:absolute;
+    left:50%;
+    right:50%;
+    
+    transform:translate(-50%,-50%)
+    
+}
+```
+
+
+
+
+
+### 旋转
+
+```css
+transform: rotate(旋转角度);
+```
+
+- 取值：角度单位是 **deg** 
+- 技巧
+  - 取值正负均可
+  - 取值为正，顺时针旋转
+  - 取值为负，逆时针旋转
+
+
+
+
+
+# 捌-移动适配
+
+## 01-移动 Web 基础
+
+### 谷歌模拟器
+
+模拟移动设备，方便查看页面效果
+
+
+
+### 屏幕分辨率
+
+分类：
+
+- 物理分辨率：硬件分辨率（出厂设置）
+- 逻辑分辨率：软件 / 驱动设置
+
+结论：**制作网页参考 逻辑分辨率** 
+
+| 手机型号          | 物理分辨率 | 逻辑分辨率 | 比例关系 |
+| ----------------- | ---------- | ---------- | -------- |
+| iPhone6/7/8(标准) | 750*1334   | 375*667    | 2:1      |
+| iPhone6/7/8 Plus  | 1080*1920  | 414*736    | 2.6:1    |
+
+
+
+### 视口
+
+作用：显示 HTML 网页的区域，用来约束 HTML 的尺寸
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!– 视口标签 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+</html>
+```
+
+
+
+- width=device-width：视口宽度 = 设备宽度
+- initial-scale=1.0：缩放1倍（不缩放）
+
+
+
+### 二倍图
+
+概念：设计稿里面每个元素的尺寸的倍数
+
+作用：防止图片在高分辨率屏幕下模糊失真
+
+
+
+### 适配方案
+
+- 宽度适配：宽度自适应
+  - 百分比布局
+  - Flex 布局
+- 等比适配：宽高等比缩放
+  - rem
+  - vw
+
+
+
+## 02-rem
+
+### 简介
+
+- rem单位，是相对单位
+- rem单位是相对于HTML标签的字号计算结果
+- 1rem = 1HTML字号大小
+
+
+
+### 媒体查询
+
+媒体查询能够检测视口的宽度，然后编写差异化的 CSS 样式
+
+当某个条件成立, 执行对应的CSS样式
+
+> 格式：
+
+```css
+@media (媒体特性) {
+  选择器 {
+    css属性
+  }
+}
+```
+
+
+
+> 例子
+
+```css
+@media (width:320px) {
+  html {
+    background-color: green;
+  }
+}
+```
+
+
+
+
+
+### rem 布局
+
+目前rem布局方案中，将网页等分成10份， HTML标签的字号为视口宽度的 1/10。
+
+
+
+### flexible.js
+
+flexible.js 是手淘开发出的一个用来适配移动端的 js 库。
+
+核心原理就是根据不同的视口宽度给网页中 html 根节点设置不同的 font-size。
+
+```html
+<body>
+  ......
+  <script src="./js/flexible.js"></script>
+</body>
+```
+
+### rem 移动适配
+
+rem单位尺寸
+
+1. 确定基准根字号
+
+- 查看设计稿宽度 → 确定参考设备宽度(视口宽度) → 确定基准根字号（1/10视口宽度）
+
+1. rem单位的尺寸
+
+- **rem单位的尺寸 = px单位数值 / 基准根字号**
+
+
+
+
+
+## 03-less
+
+Less是一个CSS预处理器, Less文件后缀是.less。扩充了 CSS 语言, 使 CSS 具备一定的逻辑性、计算能力
+
+注意：浏览器不识别 Less 代码，目前阶段，网页要引入对应的 CSS 文件
+
+VS Code 插件：Easy LESS，保存 less文件后自动生成对应的 CSS 文件
+
+
+
+### 运算
+
+- 加、减、乘直接书写计算表达式
+- 除法需要添加 小括号 或 .
+- 表达式存在多个单位以第一个单位为准
+
+
+
+```less
+.box {
+    width: 100+ 50 px;
+    height: (100 / 4px);
+}
+```
+
+
+
+
+
+### 嵌套
+
+作用：快速生成后代选择器
+
+```less
+.father{
+    color：red；
+    .son{
+      color:green;   
+    }
+}
+```
+
+
+
+提示：用 `&` 表示当前选择器，不会生成后代选择器，通常配合伪类或伪元素使用
+
+
+
+```less 
+.father{
+    color：red；
+   &:hover{
+     color:green;   
+    }
+}
+
+/*或者是*/
+
+.father{
+    color：red；
+   .father:hover{
+       color:green;    
+    }
+}
+```
+
+
+
+### 变量
+
+概念：容器，存储数据
+
+作用：存储数据，方便使用和修改
+
+语法：
+
+- 定义变量：@变量名: 数据; 
+- 使用变量：CSS属性：@变量名;
+
+```less
+// 定义变量
+@myColor: pink;
+// 使用变量
+.box {
+  color: @myColor;
+}
+a {
+  color: @myColor;
+}
+```
+
+### 导入
+
+作用：导入 less 公共样式文件
+
+语法：导入: @import “文件路径”;
+
+提示：如果是 less 文件可以省略后缀
+
+```less
+@import './base.less';
+@import './common';
+```
+
+### 导出
+
+写法：在 less 文件的第一行添加 // out: 存储URL
+
+提示：文件夹名称后面添加 /
+
+```less
+// out: ./index.css
+// out: ./css/
+```
+
+### 
+
+
+
+
+
+## 04-vw适配方案
+
+### vw和vh基本使用
+
+vw和vh是相对单位，相对视口尺寸计算结果
+
+- vw：viewport width（1vw = 1/100视口宽度 ）
+- vh：lviewport height ( 1vh = 1/100视口高度 )
+
+### vw布局
+
+vw单位的尺寸 = px 单位数值 / ( 1/100 视口宽度 ) 
+
+### vh问题
+
+vh是1/100视口高度，全面屏视口高度尺寸大，如果混用可能会导致盒子变形 
+
+
+
+
+
+## 05-媒体查询
+
+### 基本写法
+
+```css
+@media(媒体特性){
+    
+    选择器{
+        
+        样式
+    }
+}
+```
+
+
+
+- max-width：最大宽度（小于等于）
+- min-width：最小宽度（大于等于）
+
+### 书写顺序
+
+- min-width（从小到大）
+- max-width（从大到小）
+
+
+
+### 案例-左侧隐藏
+
+需求：网页宽度小于等于768px则隐藏左侧区域
+
+- HTML 结构
+
+```css
+<div class="box">
+  <div class="left">left</div>
+  <div class="main">
+    响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果响应式网页效果
+  </div>
+</div>
+```
+
+- CSS 样式
+
+```css
+.box {
+  display: flex;
+}
+
+.left {
+  width: 300px;
+  height: 500px;
+  background-color: pink;
+}
+
+.main {
+  flex: 1;
+  height: 500px;
+  background-color: skyblue;
+}
+
+@media (max-width: 768px) {
+  .left {
+    display: none;
+  }
+}
+```
+
+### 媒体查询-完整写法
+
+
+
+```css
+@media 关键词 媒体类型 and (媒体特性)  {css代码}
+```
+
+
+
+#### 关键词 / 逻辑操作符
+
+- and
+- only
+- not
+
+#### 媒体类型
+
+媒体类型用来区分设备类型
+
+- screen：屏幕设备
+- 打印预览：print
+- 阅读器：speech
+- 不区分类型：all
+
+#### 媒体特性
+
+- 视口宽高：width / height
+- 视口最大宽高：max-width ；max-height
+- 视口最小宽高：min-width；min-height
+- 屏幕方向：orientation
+  - protrait：竖屏
+  - landscape：横屏
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
