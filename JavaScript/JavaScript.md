@@ -1077,17 +1077,17 @@ while (true) {
 
 1. 共同点
 
-    - 都能实现多分支选择， 多选1
-    - 大部分情况下可以互换
+   - 都能实现多分支选择， 多选1
+   - 大部分情况下可以互换
 
 2. 区别：
 
-    - switch…case语句通常处理case为比较**确定值**的情况，而if…else…语句更加灵活，通常用于**范围判断**(大于，等于某个范围)。
-    - switch 语句进行判断后直接执行到程序的语句，效率更高，而if…else语句有几种判断条件，就得判断多少次
-    - switch 一定要注意 必须是 ===  全等，一定注意 数据类型，同时注意break否则会有穿透效果
-    - 结论：
-        - 当分支比较少时，if…else语句执行效率高。
-        - 当分支比较多时，switch语句执行效率高，而且结构更清晰。
+   - switch…case语句通常处理case为比较**确定值**的情况，而if…else…语句更加灵活，通常用于**范围判断**(大于，等于某个范围)。
+   - switch 语句进行判断后直接执行到程序的语句，效率更高，而if…else语句有几种判断条件，就得判断多少次
+   - switch 一定要注意 必须是 ===  全等，一定注意 数据类型，同时注意break否则会有穿透效果
+   - 结论：
+      - 当分支比较少时，if…else语句执行效率高。
+      - 当分支比较多时，switch语句执行效率高，而且结构更清晰。
 
    ​
 
@@ -1276,11 +1276,11 @@ for (let i = 1; i <= 5; i++) {
 
 1. 数组做为对象数据类型，不但有 `length` 属性可以使用，还提供了许多方法：
 
-    1. push 动态向数组的尾部添加一个单元
-    2. unshit 动态向数组头部添加一个单元
-    3. pop 删除最后一个单元
-    4. shift 删除第一个单元
-    5. splice 动态删除任意单元
+   1. push 动态向数组的尾部添加一个单元
+   2. unshit 动态向数组头部添加一个单元
+   3. pop 删除最后一个单元
+   4. shift 删除第一个单元
+   5. splice 动态删除任意单元
 
    使用以上4个方法时，都是直接在原数组上进行操作，即成功调任何一个方法，原数组都跟着发生相应的改变。并且在添加或删除单元时 `length` 并不会发生错乱。
 
@@ -2797,6 +2797,187 @@ filter() 方法创建一个新的数组，新数组中的元素是通过检查�
 
 1. 推荐使用字面量方式声明数值，而不是 `Number` 构造函数
 2. 实例方法 `toFixed` 用于设置保留小数位的长度
+
+
+
+
+***
+
+
+
+# 捌-JavaScript 进阶(杂物）
+
+## 深浅拷贝
+
+### 浅拷贝
+
+首先浅拷贝和深拷贝只针对引用类型
+
+浅拷贝：拷贝的是地址
+
+常见方法：
+
+1. 拷贝对象：Object.assgin() / 展开运算符 {...obj} 拷贝对象
+2. 拷贝数组：Array.prototype.concat() 或者 [...arr]
+
+> 如果是简单数据类型拷贝值，引用数据类型拷贝的是地址 (简单理解： 如果是单层对象，没问题，如果有多层就有问题)
+
+### 深拷贝
+
+首先浅拷贝和深拷贝只针对引用类型
+
+深拷贝：拷贝的是对象，不是地址
+
+常见方法：
+
+1. 通过递归实现深拷贝
+2. lodash/cloneDeep
+3. 通过JSON.stringify()实现
+
+
+
+#### 递归实现深拷贝
+
+函数递归：
+
+如果一个函数在内部可以调用其本身，那么这个函数就是递归函数
+
+- 简单理解:函数内部自己调用自己, 这个函数就是递归函数
+- 递归函数的作用和循环效果类似
+- 由于递归很容易发生“栈溢出”错误（stack overflow），所以必须要加退出条件 return
+
+```html
+<body>
+  <script>
+    const obj = {
+      uname: 'pink',
+      age: 18,
+      hobby: ['乒乓球', '足球'],
+      family: {
+        baby: '小pink'
+      }
+    }
+    const o = {}
+    // 拷贝函数
+    function deepCopy(newObj, oldObj) {
+      debugger
+      for (let k in oldObj) {
+        // 处理数组的问题  一定先写数组 在写 对象 不能颠倒
+        if (oldObj[k] instanceof Array) {
+          newObj[k] = []
+          //  newObj[k] 接收 []  hobby
+          //  oldObj[k]   ['乒乓球', '足球']
+          deepCopy(newObj[k], oldObj[k])
+        } else if (oldObj[k] instanceof Object) {
+          newObj[k] = {}
+          deepCopy(newObj[k], oldObj[k])
+        }
+        else {
+          //  k  属性名 uname age    oldObj[k]  属性值  18
+          // newObj[k]  === o.uname  给新对象添加属性
+          newObj[k] = oldObj[k]
+        }
+      }
+    }
+    deepCopy(o, obj) // 函数调用  两个参数 o 新对象  obj 旧对象
+    console.log(o)
+    o.age = 20
+    o.hobby[0] = '篮球'
+    o.family.baby = '老pink'
+    console.log(obj)
+    console.log([1, 23] instanceof Object)
+    // 复习
+    // const obj = {
+    //   uname: 'pink',
+    //   age: 18,
+    //   hobby: ['乒乓球', '足球']
+    // }
+    // function deepCopy({ }, oldObj) {
+    //   // k 属性名  oldObj[k] 属性值
+    //   for (let k in oldObj) {
+    //     // 处理数组的问题   k 变量
+    //     newObj[k] = oldObj[k]
+    //     // o.uname = 'pink'
+    //     // newObj.k  = 'pink'
+    //   }
+    // }
+  </script>
+</body>
+```
+
+#### 
+
+## 异常处理
+
+> 了解 JavaScript 中程序异常处理的方法，提升代码运行的健壮性。
+
+### throw
+
+异常处理是指预估代码执行过程中可能发生的错误，然后最大程度的避免错误的发生导致整个程序无法继续运行
+
+总结：
+
+1. throw 抛出异常信息，程序也会终止执行
+2. throw 后面跟的是错误提示信息
+3. Error 对象配合 throw 使用，能够设置更详细的错误信息
+
+```html
+<script>
+  function counter(x, y) {
+
+    if(!x || !y) {
+      // throw '参数不能为空!';
+      throw new Error('参数不能为空!')
+    }
+
+    return x + y
+  }
+
+  counter()
+</script>
+```
+
+总结：
+
+1. `throw` 抛出异常信息，程序也会终止执行
+2. `throw` 后面跟的是错误提示信息
+3. `Error` 对象配合 `throw` 使用，能够设置更详细的错误信息
+
+
+
+### try ... catch
+
+```html
+<script>
+   function foo() {
+      try {
+        // 查找 DOM 节点
+        const p = document.querySelector('.p')
+        p.style.color = 'red'
+      } catch (error) {
+        // try 代码段中执行有错误时，会执行 catch 代码段
+        // 查看错误信息
+        console.log(error.message)
+        // 终止代码继续执行
+        return
+
+      }
+      finally {
+          alert('执行')
+      }
+      console.log('如果出现错误，我的语句不会执行')
+    }
+    foo()
+</script>
+```
+
+总结：
+
+1. `try...catch` 用于捕获错误信息
+2. 将预估可能发生错误的代码写在 `try` 代码段中
+3. 如果 `try` 代码段中出现错误后，会执行 `catch` 代码段，并截获到错误信息
+
+
 
 
 
