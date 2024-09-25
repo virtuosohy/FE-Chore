@@ -3570,6 +3570,553 @@ input
 
 
 
+## 事件流
+
+事件流是对事件执行过程的描述，了解事件的执行过程有助于加深对事件的理解，提升开发实践中对事件运用的灵活度。
+
+如上图所示，任意事件被触发时总会经历两个阶段：【捕获阶段】和【冒泡阶段】。
+
+简言之，捕获阶段是【从父到子】的传导过程，冒泡阶段是【从子向父】的传导过程。
+
+
+
+### 捕获和冒泡
+
+了解了什么是事件流之后，我们来看事件流是如何影响事件执行的：
+
+```html
+<body>
+  <h3>事件流</h3>
+  <p>事件流是事件在执行时的底层机制，主要体现在父子盒子之间事件的执行上。</p>
+  <div class="outer">
+    <div class="inner">
+      <div class="child"></div>
+    </div>
+  </div>
+  <script>
+    // 获取嵌套的3个节点
+    const outer = document.querySelector('.outer');
+    const inner = document.querySelector('.inner');
+    const child = document.querySelector('.child');
+		
+    // html 元素添加事件
+    document.documentElement.addEventListener('click', function () {
+      console.log('html...')
+    })
+		
+    // body 元素添加事件
+    document.body.addEventListener('click', function () {
+      console.log('body...')
+    })
+
+    // 外层的盒子添加事件
+    outer.addEventListener('click', function () {
+      console.log('outer...')
+    })
+    
+    // 中间的盒子添加事件
+    outer.addEventListener('click', function () {
+      console.log('inner...')
+    })
+    
+    // 内层的盒子添加事件
+    outer.addEventListener('click', function () {
+      console.log('child...')
+    })
+  </script>
+</body>
+```
+
+执行上述代码后发现，当单击事件触发时，其祖先元素的单击事件也【相继触发】，这是为什么呢？
+
+结合事件流的特征，我们知道当某个元素的事件被触发时，事件总是会先经过其祖先才能到达当前元素，然后再由当前元素向祖先传递，事件在流动的过程中遇到相同的事件便会被触发。
+
+再来关注一个细节就是事件相继触发的【执行顺序】，事件的执行顺序是可控制的，即可以在捕获阶段被执行，也可以在冒泡阶段被执行。
+
+如果事件是在冒泡阶段执行的，我们称为冒泡模式，它会先执行子盒子事件再去执行父盒子事件，默认是冒泡模式。
+
+如果事件是在捕获阶段执行的，我们称为捕获模式，它会`先执行父盒子事件`再去执行`子盒子事件`。
+
+```html
+<body>
+  <h3>事件流</h3>
+  <p>事件流是事件在执行时的底层机制，主要体现在父子盒子之间事件的执行上。</p>
+  <div class="outer">
+    <div class="inner"></div>
+  </div>
+  <script>
+    // 获取嵌套的3个节点
+    const outer = document.querySelector('.outer')
+    const inner = document.querySelector('.inner')
+
+    // 外层的盒子
+    outer.addEventListener('click', function () {
+      console.log('outer...')
+    }, true) // true 表示在捕获阶段执行事件
+    
+    // 中间的盒子
+    outer.addEventListener('click', function () {
+      console.log('inner...')
+    }, true)
+  </script>
+</body>
+```
+
+结论：
+
+1. `addEventListener` 第3个参数决定了事件是在捕获阶段触发还是在冒泡阶段触发
+2. `addEventListener` 第3个参数为  `true` 表示捕获阶段触发，`false` 表示冒泡阶段触发，默认值为 `false`
+3. 事件流只会在父子元素具有相同事件类型时才会产生影响
+4. 绝大部分场景都采用默认的冒泡模式（其中一个原因是早期 IE 不支持捕获）
+
+
+
+### 阻止冒泡
+
+阻止冒泡是指阻断事件的流动，保证事件只在当前元素被执行，而不再去影响到其对应的祖先元素。
+
+```html
+<body>
+  <h3>阻止冒泡</h3>
+  <p>阻止冒泡是指阻断事件的流动，保证事件只在当前元素被执行，而不再去影响到其对应的祖先元素。</p>
+  <div class="outer">
+    <div class="inner">
+      <div class="child"></div>
+    </div>
+  </div>
+  <script>
+    // 获取嵌套的3个节点
+    const outer = document.querySelector('.outer')
+    const inner = document.querySelector('.inner')
+    const child = document.querySelector('.child')
+
+    // 外层的盒子
+    outer.addEventListener('click', function () {
+      console.log('outer...')
+    })
+
+    // 中间的盒子
+    inner.addEventListener('click', function (ev) {
+      console.log('inner...')
+
+      // 阻止事件冒泡
+      ev.stopPropagation()
+    })
+
+    // 内层的盒子
+    child.addEventListener('click', function (ev) {
+      console.log('child...')
+
+      // 借助事件对象，阻止事件向上冒泡
+      ev.stopPropagation()
+    })
+  </script>
+</body>
+```
+
+结论：事件对象中的 `ev.stopPropagation` 方法，专门用来阻止事件冒泡。
+
+> 鼠标经过事件：
+>
+> mouseover 和 mouseout 会有冒泡效果
+>
+> mouseenter  和 mouseleave   没有冒泡效果 (推荐)
+
+
+
+
+
+## 事件委托
+
+事件委托是利用事件流的特征解决一些现实开发需求的知识技巧，主要的作用是提升程序效率。
+
+大量的事件监听是比较耗费性能的，如下代码所示
+
+```html
+<script>
+  // 假设页面中有 10000 个 button 元素
+  const buttons = document.querySelectorAll('table button');
+
+  for(let i = 0; i <= buttons.length; i++) {
+    // 为 10000 个 button 元素添加了事件
+    buttons.addEventListener('click', function () {
+      // 省略具体执行逻辑...
+    })
+  }
+</script>
+```
+
+利用事件流的特征，可以对上述的代码进行优化，事件的的冒泡模式总是会将事件流向其父元素的，如果父元素监听了相同的事件类型，那么父元素的事件就会被触发并执行，正是利用这一特征对上述代码进行优化，如下代码所示：
+
+```html
+<script>
+  // 假设页面中有 10000 个 button 元素
+  let buttons = document.querySelectorAll('table button');
+  
+  // 假设上述的 10000 个 buttom 元素共同的祖先元素是 table
+  let parents = document.querySelector('table');
+  parents.addEventListener('click', function () {
+    console.log('点击任意子元素都会触发事件...');
+  })
+</script>
+```
+
+我们的最终目的是保证只有点击 button 子元素才去执行事件的回调函数，如何判断用户点击是哪一个子元素呢？
+
+事件对象中的属性 `target` 或 `srcElement`属性表示真正触发事件的元素，它是一个元素类型的节点。
+
+```html
+<script>
+  // 假设页面中有 10000 个 button 元素
+  const buttons = document.querySelectorAll('table button')
+  
+  // 假设上述的 10000 个 buttom 元素共同的祖先元素是 table
+  const parents = document.querySelector('table')
+  parents.addEventListener('click', function (ev) {
+    // console.log(ev.target);
+    // 只有 button 元素才会真正去执行逻辑
+    if(ev.target.tagName === 'BUTTON') {
+      // 执行的逻辑
+    }
+  })
+</script>
+```
+
+优化过的代码只对祖先元素添加事件监听，相比对 10000 个元素添加事件监听执行效率要高许多！！！
+
+
+
+
+
+## 其他事件
+
+### 页面加载事件
+
+加载外部资源（如图片、外联CSS和JavaScript等）加载完毕时触发的事件
+
+有些时候需要等页面资源全部处理完了做一些事情
+
+**事件名：load**
+
+监听页面所有资源加载完毕：
+
+```javascript
+window.addEventListener('load', function() {
+    // xxxxx
+})
+```
+
+### 元素滚动事件
+
+滚动条在滚动的时候持续触发的事件
+
+```javascript
+window.addEventListener('scroll', function() {
+    // xxxxx
+})
+```
+
+### 页面尺寸事件
+
+会在窗口尺寸改变的时候触发事件：
+
+```javascript
+window.addEventListener('resize', function() {
+    // xxxxx
+})
+```
+
+
+
+
+
+
+
+# 拾壹-JavaScript API (BOM)
+
+## 日期对象
+
+掌握 Date 日期对象的使用，动态获取当前计算机的时间。
+
+ECMAScript 中内置了获取系统时间的对象 Date，使用 Date 时与之前学习的内置对象 console 和 Math 不同，它需要借助 new 关键字才能使用。
+
+### 实例化
+
+```javascript
+  // 1. 实例化
+  // const date = new Date(); // 系统默认时间
+  const date = new Date('2024-09-25') // 指定时间
+  // date 变量即所谓的时间对象
+
+  console.log(typeof date)
+
+
+
+```
+
+
+
+### 方法
+
+```javascript
+   // 1. 实例化
+  const date = new Date();
+  // 2. 调用时间对象方法
+  // 通过方法分别获取年、月、日，时、分、秒
+  const year = date.getFullYear(); // 四位年份
+  const month = date.getMonth(); // 0 ~ 11
+```
+
+getFullYear 获取四位年份
+
+getMonth 获取月份，取值为 0 ~ 11
+
+getDate 获取月份中的每一天，不同月份取值也不相同
+
+getDay 获取星期，取值为 0 ~ 6
+
+getHours 获取小时，取值为 0 ~ 23
+
+getMinutes 获取分钟，取值为 0 ~ 59
+
+getSeconds 获取秒，取值为 0 ~ 59
+
+
+
+## DOM 节点
+
+> 掌握元素节点创建、复制、插入、删除等操作的方法，能够依据元素节点的结构关系查找节点
+
+回顾之前 DOM 的操作都是针对元素节点的属性或文本的，除此之外也有专门针对元素节点本身的操作，如插入、复制、删除、替换等。
+
+### 插入节点
+
+在已有的 DOM 节点中插入新的 DOM 节点时，需要关注两个关键因素：首先要得到新的 DOM 节点，其次在哪个位置插入这个节点。
+
+如下代码演示：
+
+```html
+<body>
+  <h3>插入节点</h3>
+  <p>在现有 dom 结构基础上插入新的元素节点</p>
+  <hr>
+  <!-- 普通盒子 -->
+  <div class="box"></div>
+  <!-- 点击按钮向 box 盒子插入节点 -->
+  <button class="btn">插入节点</button>
+  <script>
+    // 点击按钮，在网页中插入节点
+    const btn = document.querySelector('.btn')
+    btn.addEventListener('click', function () {
+      // 1. 获得一个 DOM 元素节点
+      const p = document.createElement('p')
+      p.innerText = '创建的新的p标签'
+      p.className = 'info'
+      
+      // 复制原有的 DOM 节点
+      const p2 = document.querySelector('p').cloneNode(true)
+      p2.style.color = 'red'
+
+      // 2. 插入盒子 box 盒子
+      document.querySelector('.box').appendChild(p)
+      document.querySelector('.box').appendChild(p2)
+    })
+  </script>
+</body>
+```
+
+结论：
+
+- `createElement` 动态创建任意 DOM 节点
+- `cloneNode` 复制现有的 DOM 节点，传入参数 true 会复制所有子节点
+- `appendChild` 在末尾（结束标签前）插入节点
+
+再来看另一种情形的代码演示：
+
+```html
+<body>
+  <h3>插入节点</h3>
+  <p>在现有 dom 结构基础上插入新的元素节点</p>
+	<hr>
+  <button class="btn1">在任意节点前插入</button>
+  <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+  </ul>
+  <script>
+    // 点击按钮，在已有 DOM 中插入新节点
+    const btn1 = document.querySelector('.btn1')
+    btn1.addEventListener('click', function () {
+
+      // 第 2 个 li 元素
+      const relative = document.querySelector('li:nth-child(2)')
+
+      // 1. 动态创建新的节点
+      const li1 = document.createElement('li')
+      li1.style.color = 'red'
+      li1.innerText = 'Web APIs'
+
+      // 复制现有的节点
+      const li2 = document.querySelector('li:first-child').cloneNode(true)
+      li2.style.color = 'blue'
+
+      // 2. 在 relative 节点前插入
+      document.querySelector('ul').insertBefore(li1, relative)
+      document.querySelector('ul').insertBefore(li2, relative)
+    })
+  </script>
+</body>
+```
+
+结论：
+
+- `createElement` 动态创建任意 DOM 节点
+- `cloneNode` 复制现有的 DOM 节点，传入参数 true 会复制所有子节点
+- `insertBefore` 在父节点中任意子节点之前插入新节点
+
+### 删除节点
+
+删除现有的 DOM 节点，也需要关注两个因素：首先由父节点删除子节点，其次是要删除哪个子节点。
+
+```html
+<body>
+  <!-- 点击按钮删除节点 -->
+  <button>删除节点</button>
+  <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>Web APIs</li>
+  </ul>
+
+  <script>
+    const btn = document.querySelector('button')
+    btn.addEventListener('click', function () {
+      // 获取 ul 父节点
+      let ul = document.querySelector('ul')
+      // 待删除的子节点
+      let lis = document.querySelectorAll('li')
+
+      // 删除节点
+      ul.removeChild(lis[0])
+    })
+  </script>
+</body>
+```
+
+结论：`removeChild` 删除节点时一定是由父子关系。
+
+### 查找节点
+
+DOM 树中的任意节点都不是孤立存在的，它们要么是父子关系，要么是兄弟关系，不仅如此，我们可以依据节点之间的关系查找节点。
+
+#### 父子关系
+
+```html
+<body>
+  <button class="btn1">所有的子节点</button>
+  <!-- 获取 ul 的子节点 -->
+  <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript 基础</li>
+    <li>Web APIs</li>
+  </ul>
+  <script>
+    const btn1 = document.querySelector('.btn1')
+    btn1.addEventListener('click', function () {
+      // 父节点
+      const ul = document.querySelector('ul')
+
+      // 所有的子节点
+      console.log(ul.childNodes)
+      // 只包含元素子节点
+      console.log(ul.children)
+    })
+  </script>
+</body>
+```
+
+结论：
+
+- `childNodes` 获取全部的子节点，回车换行会被认为是空白文本节点
+- `children` 只获取元素类型节点
+
+```html
+<body>
+  <table>
+    <tr>
+      <td width="60">序号</td>
+      <td>课程名</td>
+      <td>难度</td>
+      <td width="80">操作</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><span>HTML</span></td>
+      <td>初级</td>
+      <td><button>变色</button></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><span>CSS</span></td>
+      <td>初级</td>
+      <td><button>变色</button></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><span>Web APIs</span></td>
+      <td>中级</td>
+      <td><button>变色</button></td>
+    </tr>
+  </table>
+  <script>
+    // 获取所有 button 节点，并添加事件监听
+    const buttons = document.querySelectorAll('table button')
+    for(let i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function () {
+        // console.log(this.parentNode); // 父节点 td
+        // console.log(this.parentNode.parentNode); // 爷爷节点 tr
+        this.parentNode.parentNode.style.color = 'red'
+      })
+    }
+  </script>
+</body>
+```
+
+结论：`parentNode` 获取父节点，以相对位置查找节点，实际应用中非常灵活。
+
+#### 兄弟关系
+
+```html
+<body>
+  <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript 基础</li>
+    <li>Web APIs</li>
+  </ul>
+  <script>
+    // 获取所有 li 节点
+    const lis = document.querySelectorAll('ul li')
+
+    // 对所有的 li 节点添加事件监听
+    for(let i = 0; i < lis.length; i++) {
+      lis[i].addEventListener('click', function () {
+        // 前一个节点
+        console.log(this.previousSibling)
+        // 下一下节点
+        console.log(this.nextSibling)
+      })
+    }
+  </script>
+</body>
+```
+
+结论：
+
+- `previousSibling` 获取前一个节点，以相对位置查找节点，实际应用中非常灵活。
+- `nextSibling` 获取后一个节点，以相对位置查找节点，实际应用中非常灵活。
 
 
 
@@ -3579,16 +4126,286 @@ input
 
 
 
+## window对象
+
+**BOM** (Browser Object Model ) 是浏览器对象模型
+
+- window对象是一个全局对象，也可以说是JavaScript中的顶级对象
+- 像document、alert()、console.log()这些都是window的属性，基本BOM的属性和方法都是window的
+- 所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法
+- window对象下的属性和方法调用的时候可以省略window
 
 
 
+## 定时器-延迟函数
+
+JavaScript 内置的一个用来让代码延迟执行的函数，叫 setTimeout
+
+**语法：**
+
+```javascript
+setTimeout(回调函数, 延迟时间)
+```
+
+setTimeout 仅仅只执行一次，所以可以理解为就是把一段代码延迟执行, 平时省略window
+
+间歇函数 setInterval : 每隔一段时间就执行一次， , 平时省略window
+
+清除延时函数：
+
+```javascript
+clearTimeout(timerId)
+```
+
+> 注意点
+>
+> 1. 延时函数需要等待,所以后面的代码先执行
+> 2. 返回值是一个正整数，表示定时器的编号
+
+```html
+<body>
+  <script>
+    // 定时器之延迟函数
+
+    // 1. 开启延迟函数
+    let timerId = setTimeout(function () {
+      console.log('我只执行一次')
+    }, 3000)
+
+    // 1.1 延迟函数返回的还是一个正整数数字，表示延迟函数的编号
+    console.log(timerId)
+
+    // 1.2 延迟函数需要等待时间，所以下面的代码优先执行
+
+    // 2. 关闭延迟函数
+    clearTimeout(timerId)
+
+  </script>
+</body>
+```
+
+## location对象
+
+location (地址) 它拆分并保存了 URL 地址的各个组成部分， 它是一个对象
+
+| 属性/方法 | 说明                                                 |
+| --------- | ---------------------------------------------------- |
+| href      | 属性，获取完整的 URL 地址，赋值时用于地址的跳转      |
+| search    | 属性，获取地址中携带的参数，符号 ？后面部分          |
+| hash      | 属性，获取地址中的啥希值，符号 # 后面部分            |
+| reload()  | 方法，用来刷新当前页面，传入参数 true 时表示强制刷新 |
+
+```html
+<body>
+  <form>
+    <input type="text" name="search"> <button>搜索</button>
+  </form>
+  <a href="#/music">音乐</a>
+  <a href="#/download">下载</a>
+
+  <button class="reload">刷新页面</button>
+  <script>
+    // location 对象  
+    // 1. href属性 （重点） 得到完整地址，赋值则是跳转到新地址
+    console.log(location.href)
+    // location.href = 'http://www.itcast.cn'
+
+    // 2. search属性  得到 ? 后面的地址 
+    console.log(location.search)  // ?search=笔记本
+
+    // 3. hash属性  得到 # 后面的地址
+    console.log(location.hash)
+
+    // 4. reload 方法  刷新页面
+    const btn = document.querySelector('.reload')
+    btn.addEventListener('click', function () {
+      // location.reload() // 页面刷新
+      location.reload(true) // 强制页面刷新 ctrl+f5
+    })
+  </script>
+</body>
+```
+
+## navigator对象
+
+navigator是对象，该对象下记录了浏览器自身的相关信息
+
+常用属性和方法：
+
+- 通过 userAgent 检测浏览器的版本及平台
+
+```javascript
+// 检测 userAgent（浏览器信息）
+(function () {
+  const userAgent = navigator.userAgent
+  // 验证是否为Android或iPhone
+  const android = userAgent.match(/(Android);?[\s\/]+([\d.]+)?/)
+  const iphone = userAgent.match(/(iPhone\sOS)\s([\d_]+)/)
+  // 如果是Android或iPhone，则跳转至移动站点
+  if (android || iphone) {
+    location.href = 'http://m.itcast.cn'
+  }})();
+```
+
+## histroy对象
+
+history (历史)是对象，主要管理历史记录， 该对象与浏览器地址栏的操作相对应，如前进、后退等
+
+**使用场景**
+
+history对象一般在实际开发中比较少用，但是会在一些OA 办公系统中见到。
 
 
 
+```html
+<body>
+  <button class="back">←后退</button>
+  <button class="forward">前进→</button>
+  <script>
+    // histroy对象
+
+    // 1.前进
+    const forward = document.querySelector('.forward')
+    forward.addEventListener('click', function () {
+      // history.forward() 
+      history.go(1)
+    })
+    // 2.后退
+    const back = document.querySelector('.back')
+    back.addEventListener('click', function () {
+      // history.back()
+      history.go(-1)
+    })
+  </script>
+</body>
+
+```
+
+## 本地存储（今日重点）
+
+本地存储：将数据存储在本地浏览器中
+
+常见的使用场景：
+
+<https://todomvc.com/examples/vanilla-es6/>    页面刷新数据不丢失
+
+好处：
+
+1、页面刷新或者关闭不丢失数据，实现数据持久化
+
+2、容量较大，sessionStorage和 localStorage 约 5M 左右
+
+### localStorage（重点）
+
+**作用:** 数据可以长期保留在本地浏览器中，刷新页面和关闭页面，数据也不会丢失
+
+**特性：**以键值对的形式存储，并且存储的是字符串， 省略了window
+
+![67604963508](C:/Users/huipu/Desktop/zx/JavaScript/web%20API/02-%E7%AC%94%E8%AE%B0/assets/1676049635087.png)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本地存储-localstorage</title>
+</head>
+
+<body>
+  <script>
+    // 本地存储 - localstorage 存储的是字符串 
+    // 1. 存储
+    localStorage.setItem('age', 18)
+
+    // 2. 获取
+    console.log(typeof localStorage.getItem('age'))
+
+    // 3. 删除
+    localStorage.removeItem('age')
+  </script>
+</body>
+
+</html>
+```
+
+### sessionStorage（了解）
+
+特性：
+
+- 用法跟localStorage基本相同
+- 区别是：当页面浏览器被关闭时，存储在 sessionStorage 的数据会被清除
+
+存储：sessionStorage.setItem(key,value)
+
+获取：sessionStorage.getItem(key)
+
+删除：sessionStorage.removeItem(key)
+
+### localStorage 存储复杂数据类型
+
+**问题：**本地只能存储字符串,无法存储复杂数据类型.
+
+**解决：**需要将复杂数据类型转换成 JSON字符串,在存储到本地
+
+**语法：**JSON.stringify(复杂数据类型)
+
+JSON字符串：
+
+- 首先是1个字符串
+- 属性名使用双引号引起来，不能单引号
+- 属性值如果是字符串型也必须双引号
+
+```html
+<body>
+  <script>
+    // 本地存储复杂数据类型
+    const goods = {
+      name: '小米',
+      price: 1999
+    }
+    // localStorage.setItem('goods', goods)
+    // console.log(localStorage.getItem('goods'))
+
+    // 1. 把对象转换为JSON字符串  JSON.stringify
+    localStorage.setItem('goods', JSON.stringify(goods))
+    // console.log(typeof localStorage.getItem('goods'))
+
+  </script>
+</body>
+```
 
 
 
+**问题：**因为本地存储里面取出来的是字符串，不是对象，无法直接使用
 
+**解决： **把取出来的字符串转换为对象
+
+**语法：**JSON.parse(JSON字符串)
+
+```html
+<body>
+  <script>
+    // 本地存储复杂数据类型
+    const goods = {
+      name: '小米',
+      price: 1999
+    }
+    // localStorage.setItem('goods', goods)
+    // console.log(localStorage.getItem('goods'))
+
+    // 1. 把对象转换为JSON字符串  JSON.stringify
+    localStorage.setItem('goods', JSON.stringify(goods))
+    // console.log(typeof localStorage.getItem('goods'))
+
+    // 2. 把JSON字符串转换为对象  JSON.parse
+    console.log(JSON.parse(localStorage.getItem('goods')))
+
+  </script>
+</body>
+```
 
 
 
