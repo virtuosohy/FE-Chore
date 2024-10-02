@@ -163,10 +163,10 @@ vue 中的指令按照不同的用途可以分为如下 6 大类：
 条件判断指令，用来辅助开发者按需控制 DOM 的显示与隐藏。条件渲染指令有如下两个，分别是：
 
 1. v-show
-    1. 作用：  控制元素显示隐藏
-    2. 语法：  v-show = "表达式"   表达式值为 true 显示， false 隐藏
-    3. 原理：  切换 display:none 控制显示隐藏
-    4. 场景：频繁切换显示隐藏的场景
+   1. 作用：  控制元素显示隐藏
+   2. 语法：  v-show = "表达式"   表达式值为 true 显示， false 隐藏
+   3. 原理：  切换 display:none 控制显示隐藏
+   4. 场景：频繁切换显示隐藏的场景
 
 
 
@@ -864,13 +864,647 @@ computed:{
 
 
 
+## 六、watch侦听器（监视器）
+
+### 1.作用：
+
+​	**监视数据变化**，执行一些业务逻辑或异步操作
+
+### 2.语法：
+
+1. watch同样声明在跟data同级的配置项中
+2. 简单写法： 简单类型数据直接监视
+3. 完整写法：添加额外配置项
+
+```js
+data: { 
+  words: '苹果',
+  obj: {
+    words: '苹果'
+  }
+},
+
+watch: {
+  // 该方法会在数据变化时，触发执行
+  数据属性名 (newValue, oldValue) {
+    一些业务逻辑 或 异步操作。 
+  },
+  '对象.属性名' (newValue, oldValue) {
+    一些业务逻辑 或 异步操作。 
+  }
+}
+```
+
+
+
+***
+
+
+
+# 叁-vue2(生命周期，组件注册)
+
+## 一、Vue生命周期
+
+思考：什么时候可以发送初始化渲染请求？（越早越好）什么时候可以开始操作dom？（至少dom得渲染出来）
+
+Vue生命周期：就是一个Vue实例从创建 到 销毁 的整个过程。
+
+生命周期四个阶段：① 创建 ② 挂载 ③ 更新 ④ 销毁
+
+1.创建阶段：创建响应式数据
+
+2.挂载阶段：渲染模板
+
+3.更新阶段：修改数据，更新视图
+
+4.销毁阶段：销毁Vue实例
+
+
+
+## 二、Vue生命周期钩子
+
+Vue生命周期过程中，会**自动运行一些函数**，被称为【**生命周期钩子**】→  让开发者可以在【**特定阶段**】运行**自己的代码**
+
+```
+beforeCreate   beforeMounted   beforeUpdate  beforeDestory
+```
+
+
+
+## 三、工程化开发和脚手架
+
+### 1.开发Vue的两种方式
+
+- 核心包传统开发模式：基于html / css / js 文件，直接引入核心包，开发 Vue。
+- **工程化开发模式：基于构建工具（例如：webpack）的环境中开发Vue。**
+
+
+
+### 2.脚手架Vue CLI
+
+#### 基本介绍：
+
+Vue CLI 是Vue官方提供的一个**全局命令工具**
+
+可以帮助我们**快速创建**一个开发Vue项目的**标准化基础架子**。【集成了webpack配置】
+
+#### 好处：
+
+1. 开箱即用，零配置
+2. 内置babel等工具
+3. 标准化的webpack配置
+
+#### 使用步骤：
+
+1. 全局安装（只需安装一次即可） yarn global add @vue/cli 或者 npm i @vue/cli -g
+2. 查看vue/cli版本： vue --version
+3. 创建项目架子：**vue create project-name**(项目名不能使用中文)
+4. 启动项目：**yarn serve** 或者 **npm run serve**(命令不固定，找package.json)
+
+
+
+## 六、项目目录介绍和运行流程
+
+### 1.项目目录介绍
+
+![68209214852](C:/Users/huipu/Desktop/vue/MD%E7%AC%94%E8%AE%B0/day03/day03/assets/1682092148521.png)
+
+虽然脚手架中的文件有很多，有三个关键文件
+
+1. main.js  入口文件
+2. App.vue  App根组件
+3. index.html 模板文件
 
 
 
 
 
+## 四、组件化开发
+
+​     组件化：一个页面可以拆分成一个个组件，每个组件有着自己独立的结构、样式、行为。
+
+​     好处：便于维护，利于复用 → 提升开发效率。
 
 
+
+
+
+## 五、根组件 App.vue
+
+### 1.根组件介绍
+
+整个应用最上层的组件，包裹所有普通小组件
+
+![68216913168](C:/Users/huipu/Desktop/vue/MD%E7%AC%94%E8%AE%B0/day03/day03/assets/1682169131688.png)
+
+
+
+### 2.组件是由三部分构成
+
+- 语法高亮插件
+
+![68216926426](C:/Users/huipu/Desktop/vue/MD%E7%AC%94%E8%AE%B0/day03/day03/assets/1682169264266.png)
+
+- 三部分构成
+
+   - template：结构 （有且只能一个根元素）
+   - script:   js逻辑
+   - style： 样式 (可支持less，需要装包)
+
+- 让组件支持less
+
+  （1） style标签，lang="less" 开启less功能
+
+  （2） 装包: yarn add less less-loader -D 或者npm i less less-loader -D
+
+
+
+
+
+## 六、普通组件的注册使用-局部注册
+
+### 1.特点：
+
+只能在注册的组件内使用
+
+### 2.步骤：
+
+1. 创建.vue文件（三个组成部分）
+2. 在使用的组件内先导入再注册，最后使用
+
+### 3.使用方式：
+
+当成html标签使用即可  <组件名></组件名>
+
+### 4.注意：
+
+组件名规范 —> 大驼峰命名法， 如 HmHeader
+
+
+
+```js
+// 导入需要注册的组件
+import 组件对象 from '.vue文件路径'
+import HmHeader from './components/HmHeader'
+
+export default {  // 局部注册
+  components: {
+   '组件名': 组件对象,
+    HmHeader:HmHeaer,
+    HmHeader  //简写
+  }
+}
+```
+
+
+
+### 5.例子
+
+app.vue
+
+```vue
+<template>
+  <div class="app">
+   <！--  头部  -->
+       <header></header>
+    <！--  主体  -->
+     <！--  底部  -->
+  </div>
+</template>
+import header from './components/header.vue'
+<script>
+export default {
+    components :{
+    //"组件名" ：组件对象
+        header：header
+        header
+}
+}
+</script>
+
+<style>
+.app{
+    width:
+    height:
+    bgc:
+    margin:0 auto  //居中
+}
+</style>
+```
+
+
+
+src/components/header.vue
+
+```vue
+<template>
+  <div class="header">
+  
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+.header{
+    width:
+    height:
+    bgc:
+    margin:0 auto  //居中
+}
+</style>
+```
+
+
+
+## 七、普通组件的注册使用-全局注册
+
+### 1.特点：
+
+全局注册的组件，在项目的**任何组件**中都能使用
+
+### 2.步骤
+
+1. 创建.vue组件（三个组成部分）
+2. **main.js**中进行全局注册
+
+### 3.使用方式
+
+当成HTML标签直接使用
+
+> <组件名></组件名>
+
+### 4.注意
+
+组件名规范 —> 大驼峰命名法， 如 HmHeader
+
+### 5.语法
+
+Vue.component('组件名', 组件对象)
+
+例：
+
+```js
+// 导入需要全局注册的组件
+import HmButton from './components/HmButton'
+Vue.component('HmButton', HmButton)
+```
+
+### 6.练习
+
+封装一个全局使用按钮组件
+
+src/components/button.vue
+
+```
+<template>
+
+  <button class="button">
+  按钮
+  </button>
+  
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+.header{
+    width:
+    height:
+    bgc:
+    margin:0 auto  //居中
+}
+</style>
+```
+
+
+
+在main.js中编写导入的代码
+
+
+
+```
+import Vue from "vue"
+import App from "./App.vue"
+//导入
+import button from "./components/button.vue"
+
+//进行全局注册
+Vue.component('button',button)
+```
+
+
+
+在header中使用
+
+```
+<template>
+  <div class="header">
+  我是header
+  <button></button>
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+.header{
+    width:
+    height:
+    bgc:
+    margin:0 auto  //居中
+}
+</style>
+```
+
+
+
+## 八、scoped解决样式冲突
+
+### **1.默认情况**：
+
+写在组件中的样式会 **全局生效** →  因此很容易造成多个组件之间的样式冲突问题。
+
+1. **全局样式**: 默认组件中的样式会作用到全局，任何一个组件中都会受到此样式的影响
+
+
+1. **局部样式**: 可以给组件加上**scoped** 属性,可以**让样式只作用于当前组件**
+
+### 2.代码演示
+
+BaseOne.vue
+
+```vue
+<template>
+  <div class="base-one">
+    BaseOne
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+<style scoped>
+</style>
+```
+
+BaseTwo.vue
+
+```vue
+<template>
+  <div class="base-one">
+    BaseTwo
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style scoped>
+</style>
+```
+
+App.vue
+
+```vue
+<template>
+  <div id="app">
+    <BaseOne></BaseOne>
+    <BaseTwo></BaseTwo>
+  </div>
+</template>
+
+<script>
+import BaseOne from './components/BaseOne'
+import BaseTwo from './components/BaseTwo'
+export default {
+  name: 'App',
+  components: {
+    BaseOne,
+    BaseTwo
+  }
+}
+</script>
+```
+
+
+
+
+
+# 肆-vue2(组件通信)
+
+### 1.什么是组件通信？
+
+组件通信，就是指**组件与组件**之间的**数据传递**
+
+- 组件的数据是独立的，无法直接访问其他组件的数据。
+- 想使用其他组件的数据，就需要组件通信
+
+
+
+### 2.组件关系分类
+
+1. 父子关系
+2. 非父子关系
+
+解决方案：父子关系(props和$emit)
+
+​                    非父子关系(provide & inject      eventbus)
+
+
+
+### 3.父子通信流程
+
+1. 父组件通过 **props** 将数据传递给子组件
+2. 子组件利用 **$emit** 通知父组件修改更新
+
+### 6.父向子通信代码示例
+
+父组件通过**props**将数据传递给子组件
+
+父组件App.vue
+
+```vue
+<template>
+  <div class="app" style="border: 3px solid #000; margin: 10px">
+    我是父APP组件 
+      <!-- 1.给组件标签，添加属性的方法，传值-->
+    <Son ：title="MT"></Son>
+  </div>
+</template>
+
+<script>
+import Son from './components/Son.vue'
+export default {
+  name: 'App',
+  data() {
+    return {
+    MT："0f",
+    }
+  },
+  components: {
+    Son,
+  },
+}
+</script>
+
+<style>
+</style>
+```
+
+
+
+子组件Son.vue
+
+```vue
+<template>
+  <div class="son" style="border:3px solid #000;margin:10px">
+       <!-- 3.渲染使用-->
+    我是Son组件，{{title}}
+  </div>
+</template>
+
+<script>
+export default {
+    //2.通过props接受
+ props：["title"]
+}
+</script>
+
+<style>
+
+</style>
+```
+
+
+
+父向子传值步骤
+
+1. 给子组件以添加属性的方式传值
+2. 子组件内部通过props接收
+3. 模板中直接使用 props接收的值
+
+
+
+
+
+### 7.子向父通信代码示例
+
+子组件利用 **$emit** 通知父组件，进行修改更新
+
+父组件App.vue
+
+```vue
+<template>
+  <div class="app" style="border: 3px solid #000; margin: 10px">
+    我是父APP组件 
+      <!-- 2.父组件对消息监听-->
+    <Son ：title="MT"  @changeTitle="handleChange"></Son>
+  </div>
+</template>
+
+<script>
+import Son from './components/Son.vue'
+export default {
+  name: 'App',
+  data() {
+    return {
+    MT："aaa",
+    }
+  },
+    methods:{
+        //3.提供处理函数，逻辑
+        handleChange(newTitle){
+            this.MT = newTitle
+        }
+    },
+  components: {
+    Son,
+  },
+}
+</script>
+
+<style>
+</style>
+```
+
+
+
+子组件Son.vue
+
+```vue
+<template>
+  <div class="son" style="border:3px solid #000;margin:10px">
+      
+    我是Son组件，{{title}}
+      <button @click="changeFn">
+      修改title
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+    
+ props：["title"],
+    methods:{
+    changeFn(){
+    //1.通过$emit，向父组件发送消息通知
+    this.$emit('changeTitle',"bbb")
+}
+}
+}
+</script>
+
+<style>
+
+</style>
+```
+
+
+
+子向父传值步骤
+
+1. $emit触发事件，给父组件发送消息通知
+2. 父组件监听$emit触发的事件
+3. 提供处理函数，在函数的性参中获取传过来的参数
+
+
+
+
+
+## 三、异步更新 & $nextTick
+
+### 解决方案
+
+$nextTick：**等 DOM更新后**,才会触发执行此方法里的函数体
+
+**语法:** this.$nextTick(函数体)
+
+```js
+this.$nextTick(() => {
+  this.$refs.inp.focus()
+})
+```
+
+**注意：**$nextTick 内的函数体 一定是**箭头函数**，这样才能让函数内部的this指向Vue实例
 
 
 
