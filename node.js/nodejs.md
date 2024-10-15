@@ -505,3 +505,588 @@ server.listen(80,() => {
 
 
 
+
+
+****
+
+
+
+# 叁-模块化
+
+模块化是指解决一个复杂问题时，自顶向下逐层把系统划分成若干模块的过程。对于整个系统来说，模块是可组
+合、分解和更换的单元
+
+编程领域中的模块化，就是遵守固定的规则，把一个大文件拆成独立并互相依赖的多个小模块。
+
+
+
+
+
+## 1.Node.js 中模块的分类
+
+Node.js 中根据模块来源的不同，将模块分为了 3 大类，分别是：
+
+- 内置模块（内置模块是由 Node.js 官方提供的，例如 fs、path、http 等）
+- 自定义模块（用户创建的每个 .js 文件，都是自定义模块）
+- 第三方模块（由第三方开发出来的模块，并非官方提供的内置模块，也不是用户创建的自定义模块，使用前需要先下载）
+
+
+
+## 2.模块作用域
+
+和函数作用域类似，在自定义模块中定义的变量、方法等成员，只能在当前模块内被访问，这种模块级别的访问限制，叫做模块作用域。
+
+
+
+### 模块作用域的好处
+
+防止了全局变量污染的问题
+
+
+
+### 向外共享模块作用域中的成员
+
+#### 1.module 对象
+
+在每个 .js 自定义模块中都有一个 module 对象，它里面存储了和当前模块有关的信息
+
+
+
+#### 2.module.exports 对象
+
+在自定义模块中，可以使用 module.exports 对象，将模块内的成员共享出去，供外界使用。外界用 require() 方法导入自定义模块时，得到的就是 module.exports 所指向的对象。
+
+
+
+a.js
+
+```js
+module.exports.username = 'a'
+```
+
+
+
+b.js
+
+```js
+const m = require('./a.js')
+console.log(m)    //打印出： username:'a'
+```
+
+
+
+#### 3.exports 对象
+
+由于 module.exports 单词写起来比较复杂，为了简化向外共享成员的代码，Node 提供了 exports 对象。默认情况下，exports 和 module.exports 指向同一个对象。最终共享的结果，还是以 module.exports 指向的对象为准
+
+
+
+### Node.js 中的模块化规范
+
+Node.js 遵循了 CommonJS 模块化规范，CommonJS 规定了模块的特性和各模块之间如何相互依赖
+
+CommonJS 规定：
+① 每个模块内部，module 变量代表当前模块。
+② module 变量是一个对象，它的 exports 属性（即 module.exports）是对外的接口。
+③ 加载某个模块，其实是加载该模块的 module.exports 属性。require() 方法用于加载模块。
+
+
+
+
+
+## 3.包和npm
+
+Node.js 中的第三方模块又叫做包。
+
+由于 Node.js 的内置模块仅提供了一些底层的 API，导致在基于内置模块进行项目开发的时，效率很低。
+包是基于内置模块封装出来的，提供了更高级、更方便的 API，极大的提高了开发效率。
+包和内置模块之间的关系，类似于 jQuery 和 浏览器内置 API 之间的关系。，
+
+
+
+### devDependencies 节点
+
+如果某些包只在项目开发阶段会用到，在项目上线之后不会用到，则建议把这些包记录到 devDependencies 节点中。
+与之对应的，如果某些包在开发和项目上线之后都需要用到，则建议把这些包记录到 dependencies 节点中。
+
+
+
+### i5ting_toc
+
+i5ting_toc 是一个可以把 md 文档转为 html 页面的小工具，使用步骤如下
+
+```bash
+ npm install -g i5ting_toc
+ i5ting_toc -f 要转换的md文件路径 -o
+```
+
+
+
+
+
+
+
+
+
+# 肆-Express
+
+## 1.初识 Express
+
+### 1.1 Express 简介
+
+官方给出的概念：Express 是基于 Node.js 平台，快速、开放、极简的 Web 开发框架。
+通俗的理解：Express 的作用和 Node.js 内置的 http 模块类似，是专门用来创建 Web 服务器的。
+Express 的本质：就是一个 npm 上的第三方包，提供了快速创建 Web 服务器的便捷方法。
+
+
+
+最常见的两种服务器，分别是：
+
+- Web 网站服务器：专门对外提供 Web 网页资源的服务器。
+
+- API 接口服务器：专门对外提供 API 接口的服务器。
+
+  使用 Express，我们可以方便、快速的创建 Web 网站的服务器或 API 接口的服务器。
+
+
+
+### 1.2 Express 的基本使用
+
+#### 安装
+
+```bash
+npm i express@版本
+```
+
+
+
+#### 创建服务器
+
+```js
+const express = require('express');
+
+const app = express();
+
+app.listen(80, () => {
+  console.log('Server is running at http://127.0.0.1');
+});
+
+```
+
+
+
+#### 监听 GET 请求
+
+通过 app.get() 方法，可以监听客户端的 GET 请求，具体的语法格式如下：
+
+```js
+app.get('请求URL' , function(req,res){函数})
+```
+
+> req：请求对象
+>
+> res：响应对象
+
+
+
+#### 监听 POST 请求
+
+通过 app.post() 方法，可以监听客户端的 POST 请求，具体的语法格式如下：
+
+```js
+app.post('请求URL' , function(req,res){函数})
+```
+
+
+
+#### 把内容响应给客户端
+
+通过 res.send() 方法，可以把处理好的内容，发送给客户端：
+
+```js
+app.get('请求URL' , function(req,res){
+    
+    res.send({内容})
+})
+```
+
+
+
+
+
+#### 获取 URL 中携带的查询参数
+
+通过 req.query 对象，可以访问到客户端通过查询字符串的形式，发送到服务器的参数：
+
+```js
+app.get('请求URL' , function(req,res){
+    
+    console.log(req.query)
+})
+```
+
+
+
+#### 获取 URL 中的动态参数
+
+通过 req.params 对象，可以访问到 URL 中，通过 `:` 匹配到的动态参数：
+
+```js
+app.get('user/:id' , function(req,res){
+    //这里的id是一个动态参数
+    console.log(req.params)
+})
+```
+
+
+
+
+
+### 1.3 托管静态资源
+
+#### express.static()
+
+express 提供了一个非常好用的函数，叫做 express.static()，通过它，我们可以非常方便地创建一个静态资源服务器，
+例如，通过如下代码就可以将 public 目录下的图片、CSS 文件、JavaScript 文件对外开放访问了
+
+```js
+app.use(express.static('目录'))
+```
+
+> 注意：Express 在指定的静态目录中查找文件，并对外提供资源的访问路径。因此，存放静态文件的目录名不会出现在 URL 中。
+
+如果要托管多个静态资源目录，请多次调用 express.static() 函数：
+访问静态资源文件时，express.static() 函数会根据目录的添加顺序查找所需的文件。
+
+
+
+#### 挂载路径前缀
+
+如果希望在托管的静态资源访问路径之前，挂载路径前缀，则可以使用如下的方式：
+
+```js
+app.use('./目录',express.static('目录'))
+```
+
+
+
+### 1.4 nodemon
+
+在编写调试 Node.js 项目的时候，如果修改了项目的代码，则需要频繁的手动 close 掉，然后再重新启动，非常繁琐。
+现在，我们可以使用 nodemon（https://www.npmjs.com/package/nodemon） 这个工具，它能够监听项目文件的变动，当代码被修改后，nodemon 会自动帮我们重启项目，极大方便了开发和调试。
+
+
+
+
+
+## 2. Express路由
+
+### 2.1路由的概念
+
+在 Express 中，路由指的是客户端的请求与服务器处理函数之间的映射关系。
+Express 中的路由分 3 部分组成，分别是请求的类型、请求的 URL 地址、处理函数，格式如下：
+
+```js
+app.METHOD(path,handler)
+```
+
+
+
+路由匹配的注意点：
+① 按照定义的先后顺序进行匹配
+② 请求类型和请求的URL同时匹配成功，才会调用对应的处理函数
+
+
+
+### 2.2路由的使用
+
+```js
+app.get('/', (req, res) => {res.send('get request')})
+```
+
+
+
+#### 模块化路由
+
+为了方便对路由进行模块化的管理，Express 不建议将路由直接挂载到 app 上，而是推荐将路由抽离为单独的模块。
+将路由抽离为单独模块的步骤如下：
+① 创建路由模块对应的 .js 文件
+② 调用 express.Router() 函数创建路由对象
+③ 向路由对象上挂载具体的路由
+④ 使用 module.exports 向外共享路由对象
+⑤ 使用 app.use() 函数注册路由模块
+
+```js
+//* 路由模块
+
+//* 1.导入 express
+const express = require('express')
+
+//* 2.创建路由对象
+const router = express.Router()
+
+//* 3.挂载具体路由
+app.get('/user/list', (req, res) => {res.send('user list')})
+app.post('/user/add', (req, res) => {res.send('add user')})
+//* 4.1导出路由
+module.exports = router
+```
+
+
+
+#### 注册路由模块
+
+```js
+//导入
+const router = require('./4.Router.js');
+//注册路由
+app.use(router);
+
+```
+
+
+
+
+
+## 3.Express 中间件
+
+### 3.1概念
+
+中间件（Middleware ），特指业务流程的中间处理环节
+
+中间件的格式：
+
+```js
+app.get('/',function(req ,res,next){
+    next();
+})
+```
+
+
+
+#### next函数的作用
+
+next 函数是实现多个中间件连续调用的关键，它表示把流转关系转交给下一个中间件或路由。
+
+
+
+### 3.2实现
+
+#### 1.定义中间件函数
+
+```js
+const m = function(req,res,next){
+    console.log('中间件函数')
+    next()
+}
+```
+
+
+
+#### 2.全局生效的中间件
+
+客户端发起的任何请求，到达服务器之后，都会触发的中间件，叫做全局生效的中间件。
+通过调用 app.use(中间件函数)，即可定义一个全局生效的中间件，示例代码如下：
+
+```js
+const m = function(req,res,next){
+    console.log('中间件函数')
+    next()
+}
+
+app.use(m)
+```
+
+
+
+
+
+#### 3.局部生效的中间件
+
+不使用 app.use() 定义的中间件，叫做局部生效的中间件
+
+```js
+app.get('/' ,mw1 ,(req ,res) =>{res.send('xxx')})
+```
+
+
+
+
+
+### 3.3 中间件的分类
+
+
+
+#### 应用级别的中间件
+
+通过 app.use() 或 app.get() 或 app.post() ，绑定到 app 实例上的中间件，叫做应用级别的中间件，
+
+
+
+#### 路由级别的中间件
+
+绑定到 express.Router() 实例上的中间件，叫做路由级别的中间件。它的用法和应用级别中间件没有任何区别。只不
+过，应用级别中间件是绑定到 app 实例上，路由级别中间件绑定到 router 实例上，
+
+````js
+const app = express();
+const router = express.Router()
+
+router.use(function(req,res,next){
+    next()
+    
+})
+
+app.use('/',router)
+````
+
+
+
+
+
+#### 错误级别的中间件
+
+错误级别中间件的作用：专门用来捕获整个项目中发生的异常错误，从而防止项目异常崩溃的问题。
+格式：错误级别中间件的 function 处理函数中，必须有 4 个形参，形参顺序从前到后，分别是 (err, req, res, next)
+
+```js
+app.get('/' ,function(req,res){
+    throw new Error('服务器内部发生了错误')
+    res.send('ssss')
+})
+app.use(function(err,req,res,next){
+    console.log('发生了错误' +err.message) //服务器打印错误消息
+    res,send('Error' + err.message) //向客户端打印错误消息
+})
+```
+
+> 注意：错误级别的中间件，必须注册在所有路由之后！
+
+
+
+#### Express内置的中间件
+
+自 Express 4.16.0 版本开始，Express 内置了 3 个常用的中间件，极大的提高了 Express 项目的开发效率和体验：
+① express.static 快速托管静态资源的内置中间件，例如： HTML 文件、图片、CSS 样式等（无兼容性）
+② express.json 解析 JSON 格式的请求体数据（有兼容性，仅在 4.16.0+ 版本中可用）
+③ express.urlencoded 解析 URL-encoded 格式的请求体数据（有兼容性，仅在 4.16.0+ 版本中可用）
+
+
+
+### 3.4 自定义中间件
+
+需求描述与实现步骤
+自己手动模拟一个类似于 express.urlencoded 这样的中间件，来解析 POST 提交到服务器的表单数据。
+实现步骤：
+① 定义中间件
+② 监听 req 的 data 事件
+
+> 在中间件中，需要监听 req 对象的 data 事件，来获取客户端发送到服务器的数据。如果数据量比较大，无法一次性发送完毕，则客户端会把数据切割后，分批发送到服务器。所以 data 事件可能会触发多次，每一次触发 data 事件时，获取到数据只是完整数据的一部分，需要手动对接收到的数据进行拼接。
+
+③ 监听 req 的 end 事件
+④ 使用 querystring 模块解析请求体数据
+⑤ 将解析出来的数据对象挂载为 req.body
+⑥ 将自定义中间件封装为模块
+
+
+
+## 4.使用 Express 写接口
+
+### 4.1 创建基本的服务器
+
+```js
+const express = require('express');
+
+const app = express();
+
+
+app.listen(80, () => {
+  console.log('Server is running at http://127.0.0.1');
+});
+
+```
+
+
+
+
+
+### 4.2 创建 API 路由模块
+
+
+
+apiRouter.js
+
+```js
+//* 路由模块
+
+//* 1.导入 express
+const express = require('express')
+
+const router = express.Router()
+
+//* 挂载路由
+
+
+//* 4.1导出路由
+module.exports = router
+```
+
+app.js
+
+```js
+const router =require('./apiRouter');
+//* 注册路由到app上
+app.use('/api', router);
+
+```
+
+
+
+
+
+###  编写 GET 接口
+
+app.js
+
+```js
+const express = require('express');
+
+const app = express();
+
+const router =require('./apiRouter.js');
+//* 注册路由到app上
+app.use('/api', router);
+
+
+app.listen(80, () => {
+  console.log('Server is running at http://127.0.0.1');
+});
+
+```
+
+apiRouter.js
+
+```js
+//* 路由模块
+
+//* 1.导入 express
+const express = require('express')
+
+const router = express.Router()
+
+//* 挂载路由
+router.get('/get', (req, res) => {
+  //* 通过req.query获取url上的数据
+  const quary = req.query
+res.send({
+  status:0,
+  msg: 'GET 请求成功', 
+  data: quary   //* 返回数据 
+})
+})
+
+
+//* 4.1导出路由
+module.exports = router
+```
+
