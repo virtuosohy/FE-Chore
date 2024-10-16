@@ -17,5 +17,17 @@ res.send({
 })
 
 
+//* 2.post请求
+router.post('/post', (req, res) => {
+  //* 通过req.body获取数据  
+  const body = req.body
+  res.send({
+    status: 0,
+    msg: 'POST 请求成功',
+    data: body,
+  })
+})
+
+
 //* 4.1导出路由
 module.exports = router

@@ -190,7 +190,7 @@ path.join([..paths])
 参数解读：
 
 -  ...paths  路径片段的序列
--  返回值:
+-  返回值: 
 
 
 
@@ -307,7 +307,7 @@ const server = http.createServer()
 
 
 
-步骤3 - 为服务器实例绑定 request 事件
+ 步骤3 - 为服务器实例绑定 request 事件
 为服务器实例绑定 request 事件，即可监听客户端发送过来的网络请求：
 
 ```js
@@ -881,7 +881,7 @@ const m = function(req,res,next){
 }
 ```
 
-
+ 
 
 #### 2.全局生效的中间件
 
@@ -1031,7 +1031,7 @@ const router = express.Router()
 module.exports = router
 ```
 
-app.js
+app.js	
 
 ```js
 const router =require('./apiRouter');
@@ -1039,8 +1039,6 @@ const router =require('./apiRouter');
 app.use('/api', router);
 
 ```
-
-
 
 
 
@@ -1064,7 +1062,7 @@ app.listen(80, () => {
 
 ```
 
-apiRouter.js
+apiRouter.js	
 
 ```js
 //* 路由模块
@@ -1088,5 +1086,145 @@ res.send({
 
 //* 4.1导出路由
 module.exports = router
+```
+
+
+
+### 编写 POST接口
+
+
+
+app.js
+
+```js
+const express = require('express');
+
+const app = express();
+
+//* 解析post请求体
+app.use(express.urlencoded({ extended: false }));
+
+const router =require('./apiRouter.js');
+//* 注册路由到app上
+app.use('/api', router);
+
+
+app.listen(80, () => {
+  console.log('Server is running at http://127.0.0.1');
+});
+
+```
+
+
+
+apiRouter
+
+```JS
+//* 路由模块
+
+//* 1.导入 express
+const express = require('express')
+
+const router = express.Router()
+
+//* 挂载路由
+router.get('/get', (req, res) => {
+  //* 通过req.query获取url上的数据
+  const quary = req.query
+res.send({
+  status:0,
+  msg: 'GET 请求成功', 
+  data: quary   //* 返回数据 
+})
+})
+
+
+//* 2.post请求
+router.post('/post', (req, res) => {
+  //* 通过req.body获取数据  
+  const body = req.body
+  res.send({
+    status: 0,
+    msg: 'POST 请求成功',
+    data: body,
+  })
+})
+
+
+//* 4.1导出路由
+module.exports = router
+```
+
+
+
+### CORS 跨域资源共享
+
+cors 是 Express 的一个第三方中间件。通过安装和配置 cors 中间件，可以很方便地解决跨域问题。
+使用步骤分为如下 3 步：
+① 运行 npm install cors 安装中间件
+② 使用 const cors = require('cors') 导入中间件
+③ 在路由之前调用 app.use(cors()) 配置中间件
+
+
+
+CORS （Cross-Origin Resource Sharing，跨域资源共享）由一系列 HTTP 响应头组成，这些 HTTP 响应头决定
+浏览器是否阻止前端 JS 代码跨域获取资源。
+浏览器的同源安全策略默认会阻止网页“跨域”获取资源。但如果接口服务器配置了 CORS 相关的 HTTP 响应头，
+就可以解除浏览器端的跨域访问限制
+
+
+
+#### CORS 响应头部 - Access-Control-Allow-Origin 
+
+响应头部中可以携带一个 Access-Control-Allow-Origin 字段，其语法如下:
+
+```js
+Access-Control-Allow-Origin :<origin> | *
+```
+
+
+
+其中，origin 参数的值指定了允许访问该资源的外域 URL。
+例如，下面的字段值将只允许来自 http://baidu.com 的请求：
+
+```js
+res.setHeader('Access-Control-Allow-Origin' ,'http://baidu.com ')
+```
+
+如果指定了 Access-Control-Allow-Origin 字段的值为通配符 *，表示允许来自任何域的请求，示例代码如下：
+
+```js
+res.setHeader('Access-Control-Allow-Origin' ,'*')
+```
+
+
+
+####  CORS 响应头部 - Access-Control-Allow-Headers
+
+默认情况下，CORS 仅支持客户端向服务器发送如下的 9 个请求头：
+Accept、Accept-Language、Content-Language、DPR、Downlink、Save-Data、Viewport-Width、Width 、
+Content-Type （值仅限于 text/plain、multipart/form-data、application/x-www-form-urlencoded 三者之一）
+
+
+
+如果客户端向服务器发送了额外的请求头信息，则需要在服务器端，通过 Access-Control-Allow-Headers 对额外
+的请求头进行声明，否则这次请求会失败！
+
+```js
+res.setHeader('Access-Control-Allow-Header' ,'xxxx')
+```
+
+
+
+#### CORS 响应头部 - Access-Control-Allow-Methods
+
+默认情况下，CORS 仅支持客户端发起 GET、POST、HEAD 请求。
+如果客户端希望通过 PUT、DELETE 等方式请求服务器的资源，则需要在服务器端，通过 Access-Control-Alow-Methods
+来指明实际请求所允许使用的 HTTP 方法。
+
+```js
+res.setHeader('Access-Control-Allow-Methods' ,'POST, GET, DELETE')
+//允许所有
+res.setHeader('Access-Control-Allow-Methods' ,'*')
 ```
 
