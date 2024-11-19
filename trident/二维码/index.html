@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<br>
+<head>
+    <title>生成 QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<br>
+
+<div id="qrCode"></div>
+<img id="imgQRCode"  />
+
+
+<script>
+    // 使用 qrcode.js 生成二维码
+    var qrcode = new QRCode(document.getElementById("qrCode"), {
+        text: "https://www.baidu.com/",
+        width: 128,
+        height: 128,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // 使用 QRCode.toDataURL 生成二维码的 URL
+    QRCode.toDataURL('https://www.baidu.com/', function (err, url) {
+        if (err) console.error(err)
+        document.getElementById('imgQRCode').src = url;
+    });
+</script>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+</style>
+</body>
+</html>
